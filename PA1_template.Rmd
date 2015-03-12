@@ -7,19 +7,38 @@ output:
 
 
 ## Loading and preprocessing the data
+```{r}
+library(plyr)
+dt.activity <- read.csv("activity.csv")
 
+```
 
 
 ## What is mean total number of steps taken per day?
-
-
+```{r}
+dt.activity.mean.day<-ddply(dt.activity, .(date), numcolwise(mean), na.rm=TRUE)
+dt.activity.mean.day$steps
+```
 
 ## What is the average daily activity pattern?
+```{r}
+dt.activity.interval.mean <- ddply(dt.activity, .(interval), numcolwise(mean), na.rm=TRUE)
+plot(dt.activity.interval.mean$interval, dt.activity.interval.mean$steps, type="l")
 
-
+```
 
 ## Imputing missing values
-
-
+```{r}
+length(which(is.na(dt.activity$steps)))
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+dt.activity$date.1<-as.Date(dt.activity$date)
+dt.activity$date.2<-weekdays(dt.activity$date.1)
+dt.activity$date.3<-as.factor(ifelse(dt.activity$date.2 %in% c("Saturday","Sunday"), "Weekend", "Weekday")) 
+dt.activity.WeekDay<-ddply(dt.activity, .(date.3, interval), numcolwise(mean), na.rm=TRUE)
+library(ggplot2)
+qplot(interval, steps, data=dt.activity.WeekDay,facets=.~date.3, geom="line")
+
+```
